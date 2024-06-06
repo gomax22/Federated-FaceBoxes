@@ -9,6 +9,7 @@ from typing import List, Union, Optional
 from flwr.common import Parameters, Scalar, Metrics
 import numpy as np
 import os
+from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
@@ -19,6 +20,10 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
         self.model = model
         self.weights_dir = weights_dir
 
+        if not os.path.exists(self.weights_dir):
+            Path(self.weights_dir).mkdir(parents=True, exist_ok=True)
+
+
     def aggregate_fit(
         self,
         server_round: int,
@@ -28,7 +33,7 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
         """Aggregate model weights using weighted average and store checkpoint"""
 
         # Call aggregate_fit from base class (FedAvg) to aggregate parameters and metrics
-        aggregated_parameters, aggregated_num_samples_train, aggregated_results = super().aggregate_fit(server_round, results, failures)
+        aggregated_parameters, aggregated_results = super().aggregate_fit(server_round, results, failures)
 
         if aggregated_parameters is not None:
             print(f"Saving round {server_round} aggregated_parameters...")
@@ -45,7 +50,7 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
             out_path = os.path.join(self.weights_dir, f"model_round_{server_round}.pth")
             torch.save(self.model.state_dict(),  out_path)
 
-        return aggregated_parameters, aggregated_num_samples_train, aggregated_results
+        return aggregated_parameters, aggregated_results
 
 
 def get_config(server_round: int) -> Dict[str, str]:
