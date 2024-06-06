@@ -26,6 +26,11 @@ Create a conda environment starting from `environment.yml` file.
 conda env create -f environment.yml
 ```
 
+and activate the environment
+```Shell 
+conda activate faceboxes
+```
+
 ## Training
 Train the model starting the server:
 ```Shell
