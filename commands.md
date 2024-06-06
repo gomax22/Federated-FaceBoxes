@@ -1,3 +1,18 @@
+
+## Installation
+Clone this repository.
+
+```Shell
+git clone https://github.com/gomax22/Federated-FaceBoxes.git
+cd Federated-FaceBoxes
+git checkout dev
+```
+
+_Optional_: Compile the nms (for GPU users)
+```Shell
+./make.sh
+```
+
 ## Dataset Preparation
 
 ### Download
