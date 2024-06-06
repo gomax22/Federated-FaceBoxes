@@ -51,8 +51,8 @@ class CifarClient(fl.client.NumPyClient):
 
         trainset, valset = random_split(self.trainset, [1 - self.validation_split, self.validation_split])
         
-        train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=1, collate_fn=detection_collate)
-        val_loader = DataLoader(valset, batch_size=batch_size, shuffle=False, num_workers=1, collate_fn=detection_collate)
+        train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, collate_fn=detection_collate)
+        val_loader = DataLoader(valset, batch_size=batch_size, shuffle=False, collate_fn=detection_collate)
 
         results = train(self.model, train_loader, val_loader, epochs, self.device, **config)
 
@@ -70,7 +70,7 @@ class CifarClient(fl.client.NumPyClient):
         batch_size: int = config["batch_size"]
 
         # Evaluate global model parameters on the local test data and return results
-        testloader = DataLoader(self.testset, batch_size=batch_size, shuffle=False, num_workers=1, collate_fn=detection_collate)
+        testloader = DataLoader(self.testset, batch_size=batch_size, shuffle=False, collate_fn=detection_collate)
 
         loss, regr_loss, class_loss = test(self.model, testloader, self.device, **config)
         return float(loss), len(self.testset), {"loss": float(loss), "regr_loss": float(regr_loss), "class_loss": float(class_loss)}
