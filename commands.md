@@ -1,4 +1,6 @@
 
+# Federated FaceBoxes
+
 ## Installation
 Clone this repository.
 
