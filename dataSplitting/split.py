@@ -45,14 +45,18 @@ class SplitData:
             with open(file_name, 'a') as file:
                 # Ogni client crea la sua porzione di annotazioni 
                 for imgName in self.trainSet[startIndex:endIndex]:
-                    file.write(f"{imgName[0]+'/'+imgName[1]} {self.findAnnotations(imgName[1])}\n")
+                    annotation = self.findAnnotations(imgName[1])
+                    file.write(f"{imgName[0]+'/'+imgName[1]} {annotation}\n")
                     #Creazione directory root
                     try:
                         os.makedirs(f"WIDER_train/images/{imgName[0]}",exist_ok=False)
+                        os.makedirs("WIDER_train/annotations",exist_ok=False)
                     except FileExistsError:
                         pass
                     # Copio il file assegnato al thread nella sua directory che andrò a zippare.
                     shutil.copy2(f"{dataDirectory}/{imgName[0]}/{imgName[1]}", f"WIDER_train/images/{imgName[0]}")
+                    # Copio l'annotation assegnata.
+                    shutil.copy2(f"data/annotations/{annotation}", "WIDER_train/annotations")
             #Copio il file img_list del thread nella sua directory WIDER_train
             shutil.copy2(file_name, "WIDER_train/")
             for dirname, subdirs, files in os.walk(f"WIDER_train"):
