@@ -51,14 +51,14 @@ class SplitData:
                     try:
                         # Creo le directory che andranno zippate, se esistono prosegue il flusso.
                         os.makedirs(f"WIDER_train/images/{imgName[0]}",exist_ok=False)
-                        os.makedirs("annotations/",exist_ok=False)
+                        os.makedirs("WIDER_train/annotations/",exist_ok=False)
                     except FileExistsError:
                         pass
                     # Copio il file assegnato al thread nella sua directory che andrò a zippare.
                     # La chiamata è src,dst
                     shutil.copy2(f"{dataDirectory}/WIDER_train/images/{imgName[0]}/{imgName[1]}", f"WIDER_train/images/{imgName[0]}")
                     # Copio l'annotation assegnata.
-                    shutil.copy2(f"data/annotations/{annotation}", "annotations/")
+                    shutil.copy2(f"data/annotations/{annotation}", "WIDER_train/annotations/")
             #Copio il file img_list del thread nella sua directory WIDER_train
             shutil.copy2(file_name, "WIDER_train/")
             # Aggiungo al zip la cartella WIDER_train
@@ -66,16 +66,10 @@ class SplitData:
                 zf.write(dirname)
                 for filename in files:
                     zf.write(os.path.join(dirname, filename))
-            # Aggiungo al zip la cartella annotations
-            for dirname, subdirs, files in os.walk(f"annotations"):
-                zf.write(dirname)
-                for filename in files:
-                    zf.write(os.path.join(dirname, filename))
             # Rimuovo il file img_list.txt dalla directory principale.
             os.remove(file_name)
             # Rimuovo le directory temporanee. 
             shutil.rmtree(f"WIDER_train", ignore_errors=True)
-            shutil.rmtree(f"annotations", ignore_errors=True)
             zf.close()
             # Passo alla generazione del prossimo client
                  
