@@ -33,7 +33,8 @@ class SplitData:
         
 #QUESTA SI PUò VELOCIZZARE con i threads.         
     def split(self,dataDirectory):
-        dataChunk = math.ceil( (len(self.trainSet)) / self.nClients)
+        #########PER TESTARE ,ALTRIMENTI TOGLIERE IL /1000
+        dataChunk = math.ceil( (len(self.trainSet)/100) / self.nClients)
         print("dataChunk=", dataChunk)
         for index in range(0, self.nClients):
             #creo zip vuoto
@@ -81,4 +82,3 @@ if __name__ == "__main__":
     end_time = time.time()
     duration = end_time - start_time
     print(f"Tempo di completamento dell'operazione: {duration} secondi")
-    
