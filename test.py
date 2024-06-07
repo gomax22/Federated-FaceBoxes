@@ -25,6 +25,7 @@ parser.add_argument('--top_k', default=5000, type=int, help='top_k')
 parser.add_argument('--nms_threshold', default=0.3, type=float, help='nms_threshold')
 parser.add_argument('--keep_top_k', default=750, type=int, help='keep_top_k')
 parser.add_argument('-s', '--show_image', action="store_true", default=False, help='show detection results')
+parser.add_argument('--save_image', action="store_true", default=False, help='save detection results')
 parser.add_argument('--vis_thres', default=0.5, type=float, help='visualization_threshold')
 args = parser.parse_args()
 
@@ -79,9 +80,12 @@ if __name__ == '__main__':
 
 
     # save file
-    if not os.path.exists(args.save_folder):
-        os.makedirs(args.save_folder)
-    fw = open(os.path.join(args.save_folder, args.dataset + '_dets.txt'), 'w')
+    out_path = os.path.join(args.save_folder, args.dataset)
+    out_dets_path = os.path.join(out_path, 'dets')
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
+        os.makedirs(out_dets_path)
+    fw = open(os.path.join(out_path, 'dets.txt'), 'w')
 
     # testing dataset
     testset_folder = os.path.join('data', args.dataset, 'images/')
@@ -173,7 +177,7 @@ if __name__ == '__main__':
         print('im_detect: {:d}/{:d} forward_pass_time: {:.4f}s misc: {:.4f}s'.format(i + 1, num_images, _t['forward_pass'].average_time, _t['misc'].average_time))
 
         # show image
-        if args.show_image:
+        if args.show_image or args.save_image:
             for b in dets:
                 if b[4] < args.vis_thres:
                     continue
@@ -184,7 +188,12 @@ if __name__ == '__main__':
                 cy = b[1] + 12
                 cv2.putText(img_raw, text, (cx, cy),
                             cv2.FONT_HERSHEY_DUPLEX, 0.5, (255, 255, 255))
-            cv2.imshow('res', img_raw)
-            cv2.waitKey(0)
+                
+            if args.show_image:
+                cv2.imshow('res', img_raw)
+                cv2.waitKey(0)
+
+            if args.save_image:
+                cv2.imwrite(os.path.join(out_dets_path, f"{img_name}.png"), img_raw)
 
     fw.close()
