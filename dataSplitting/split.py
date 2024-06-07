@@ -31,10 +31,10 @@ class SplitData:
                 random.shuffle(self.trainSet)
 
         
-#QUESTA SI PUò VELOCIZZARE con i threads.         
+    # Questa funzione può essere velocizzata con l'uso dei thread       
     def split(self,dataDirectory):
-        #########PER TESTARE ,ALTRIMENTI TOGLIERE IL /100 #######################
-        dataChunk = math.ceil( (len(self.trainSet)/100) / self.nClients)
+        #dataChunk = math.ceil( (len(self.trainSet)) / self.nClients)
+        dataChunk = math.ceil((len(self.trainSet)/100) / self.nClients)  # Per testare
         print("dataChunk=", dataChunk)
         for index in range(0, self.nClients):
             #creo zip vuoto
@@ -49,12 +49,14 @@ class SplitData:
                     file.write(f"{imgName[0]+'/'+imgName[1]} {annotation}\n")
                     #Creazione directory root
                     try:
+                        # Creo le directory che andranno zippate, se esistono prosegue il flusso.
                         os.makedirs(f"WIDER_train/images/{imgName[0]}",exist_ok=False)
                         os.makedirs("annotations/",exist_ok=False)
                     except FileExistsError:
                         pass
                     # Copio il file assegnato al thread nella sua directory che andrò a zippare.
-                    shutil.copy2(f"{dataDirectory}/{imgName[0]}/{imgName[1]}", f"WIDER_train/images/{imgName[0]}")
+                    # La chiamata è src,dst
+                    shutil.copy2(f"{dataDirectory}/WIDER_train/images/{imgName[0]}/{imgName[1]}", f"WIDER_train/images/{imgName[0]}")
                     # Copio l'annotation assegnata.
                     shutil.copy2(f"data/annotations/{annotation}", "annotations/")
             #Copio il file img_list del thread nella sua directory WIDER_train
@@ -71,10 +73,11 @@ class SplitData:
                     zf.write(os.path.join(dirname, filename))
             # Rimuovo il file img_list.txt dalla directory principale.
             os.remove(file_name)
+            # Rimuovo le directory temporanee. 
             shutil.rmtree(f"WIDER_train", ignore_errors=True)
             shutil.rmtree(f"annotations", ignore_errors=True)
             zf.close()
-           # Passo alla generazione del prossimo client
+            # Passo alla generazione del prossimo client
                  
     def findAnnotations(self, fileName):
         for annotation in self.annotations:
@@ -89,7 +92,7 @@ if __name__ == "__main__":
     
     start_time = time.time()
     splitter = SplitData("data/annotations","data/WIDER_train/images",nClients)
-    splitter.split("data/WIDER_train/images")
+    splitter.split("data")
     end_time = time.time()
     duration = end_time - start_time
     print(f"Tempo di completamento dell'operazione: {duration} secondi")
