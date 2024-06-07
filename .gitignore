@@ -1,0 +1,8 @@
+# Ignora la cartella delle impostazioni di VS Code
+.vscode/
+
+# Ignora i file delle impostazioni degli utenti di VS Code
+*.code-workspace
+
+# Ignora i file .DS_Store generati da macOS
+.DS_Store
