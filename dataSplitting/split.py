@@ -33,8 +33,8 @@ class SplitData:
         
     # Questa funzione può essere velocizzata con l'uso dei thread       
     def split(self,dataDirectory):
-        #dataChunk = math.ceil( (len(self.trainSet)) / self.nClients)
-        dataChunk = math.ceil((len(self.trainSet)/100) / self.nClients)  # Per testare
+        dataChunk = math.ceil( (len(self.trainSet)) / self.nClients)
+        #dataChunk = math.ceil((len(self.trainSet)/100) / self.nClients)  # Per testare
         print("dataChunk=", dataChunk)
         for index in range(0, self.nClients):
             #creo zip vuoto
