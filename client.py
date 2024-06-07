@@ -8,8 +8,8 @@ warnings.filterwarnings("ignore")
 # Parse command line argument `partition`
 parser = argparse.ArgumentParser(description="Flower")
 parser.add_argument("--use_cuda", type=bool, default=False, help="Set to true to use GPU. Default: False")
-parser.add_argument("--mode", type=str, default="train", choices=["train", "test"], 
-                    help="Mode of the model. Default: train")
+parser.add_argument("--phase", type=str, default="train", choices=["train", "test"], 
+                    help="Phase of the model. Default: train")
 parser.add_argument("--server_address", default="0.0.0.0:8080", type=str, 
                     help="Server address. Default: 0.0.0.0:8080")
 parser.add_argument("--data_dir", type=str, default="./data/WIDER_FACE",
@@ -24,7 +24,7 @@ parser.add_argument("--test_split", type=float, default=0.1, help="Test split. D
 args = parser.parse_args()
 
 # load model and data
-model = load_faceboxes(args.mode, args.img_dim, args.num_classes).to(DEVICE)
+model = load_faceboxes(args.phase, args.img_dim, args.num_classes).to(DEVICE)
 trainloader, testloader = load_partition(args.data_dir, args.img_dim, args.rgb_mean, args.test_split, args.batch_size)
 
 class FlowerClient(fl.client.NumPyClient):
