@@ -7,6 +7,10 @@ from layers.modules import MultiBoxLoss
 from layers.functions.prior_box import PriorBox
 from data import AnnotationTransform, VOCDetection, preproc, cfg, detection_collate
 from collections import OrderedDict
+from typing import List
+import os
+import numpy as np
+import flwr as fl
 
 warnings.filterwarnings("ignore")
 
@@ -162,3 +166,15 @@ def load_faceboxes(phase: str = 'train', img_dim: int = 1024, num_classes: int =
         net.load_state_dict(new_state_dict)
 
     return net
+
+def save_faceboxes(model, aggregated_parameters, out_path):
+    # Convert `Parameters` to `List[np.ndarray]`
+    aggregated_ndarrays: List[np.ndarray] = fl.common.parameters_to_ndarrays(aggregated_parameters)
+
+    # Convert `List[np.ndarray]` to PyTorch`state_dict`
+    params_dict = zip(model.state_dict().keys(), aggregated_ndarrays)
+    state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+    model.load_state_dict(state_dict, strict=True)
+
+    # Save the model
+    torch.save(model.state_dict(),  out_path)

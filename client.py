@@ -1,7 +1,9 @@
-from task import load_faceboxes, train, test, DEVICE, get_weights, set_weights, load_partition
+from task import load_faceboxes, train, test, DEVICE, get_weights, set_weights, load_partition, save_faceboxes
 import flwr as fl
 import argparse
 import warnings
+import torch
+import os
 
 warnings.filterwarnings("ignore")
 
@@ -21,6 +23,7 @@ parser.add_argument("--num_classes", type=int, default=2, help="Number of classe
 parser.add_argument("--batch_size", type=int, default=32, help="Batch size. Default: 32")
 parser.add_argument("--validation_split", type=float, default=0.1, help="Validation split. Default: 0.1")
 parser.add_argument("--test_split", type=float, default=0.1, help="Test split. Default: 0.1")
+parser.add_argument("--weights_dir", type=str, default="./weights", help="Directory to save model weights. Default: ./weights")
 args = parser.parse_args()
 
 # load model and data
@@ -46,8 +49,19 @@ class FlowerClient(fl.client.NumPyClient):
         # Update local model parameters
         set_weights(model, parameters)
 
-        # Get batch size from config
+        # evaluate the model with updated weights
         loss, regr_loss, class_loss = test(model, testloader, DEVICE, **config)
+        print(f"Client server round: {config['current_round']}")
+        
+        # save the model at the end of the last round
+        if config['current_round'] == config['num_rounds']:
+
+            # Save the model
+            out_path = os.path.join(args.weights_dir, f"faceboxes_r{config['current_round']}.pth")
+            torch.save(model.state_dict(),  out_path)
+            print(f"Model saved to: {out_path}")
+
+        # return the loss, the number of examples used for evaluation, and the results
         return float(loss), len(testloader.dataset), {"loss": float(loss), "regr_loss": float(regr_loss), "class_loss": float(class_loss)}
 
 def client_fn(cid: str):
