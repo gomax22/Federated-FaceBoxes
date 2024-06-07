@@ -1,24 +1,26 @@
-# Adapted from https://github.com/adap/flower/blob/main/examples/advanced-pytorch/utils.py
-
+from logging import INFO
 import torch
 import warnings
-from torch.utils.data import random_split
+from torch.utils.data import random_split, DataLoader
 from models.faceboxes import FaceBoxes
 from layers.modules import MultiBoxLoss
 from layers.functions.prior_box import PriorBox
-from data import AnnotationTransform, VOCDetection, preproc, cfg
+from data import AnnotationTransform, VOCDetection, preproc, cfg, detection_collate
+from collections import OrderedDict
 
 warnings.filterwarnings("ignore")
 
 # hyperparams
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def load_partition(data_dir: str, img_dim: int, rgb_mean: int, test_split: float, toy: bool = False):
+def load_partition(data_dir: str, img_dim: int, rgb_mean: int, test_split: float, batch_size: int):
     """Load partition WIDER_FACE data."""
     dataset = VOCDetection(data_dir, preproc(img_dim, rgb_mean), AnnotationTransform())
-    train_data, test_data = random_split(dataset, [1 - test_split, test_split])
-    return train_data, test_data
+    trainset, valset = random_split(dataset, [1 - test_split, test_split])
+    train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, collate_fn=detection_collate)
+    val_loader = DataLoader(valset, batch_size=batch_size, shuffle=False, collate_fn=detection_collate)
+    return train_loader, val_loader
 
 def train(net, trainloader, valloader, epochs, device: torch.device, **kwargs):
     """Train the network on the training set."""
@@ -127,9 +129,15 @@ def test(net, testloader, device: torch.device, **kwargs):
     return test_loss, test_regression_loss, test_classification_loss
 
 
-def get_model_params(model):
-    """Returns a model's parameters."""
+def get_weights(model):
+    """Returns a model's weights."""
     return [val.cpu().numpy() for _, val in model.state_dict().items()]
+
+def set_weights(net, parameters):
+    """Loads FaceBoxes model and replaces it parameters with the ones given."""
+    params_dict = zip(net.state_dict().keys(), parameters)
+    state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+    net.load_state_dict(state_dict, strict=True)
 
 
 def load_faceboxes(mode: str = 'train', img_dim: int = 1024, num_classes: int = 2, resume_net: bool = None):
