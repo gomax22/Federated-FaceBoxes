@@ -3,9 +3,9 @@ from collections import OrderedDict
 import argparse
 import flwr as fl
 import torch
-from task import load_faceboxes, get_weights
+from task import load_faceboxes, get_weights, save_faceboxes
 import warnings
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Callable
 from flwr.common import Parameters, Scalar, Metrics, ndarrays_to_parameters
 import numpy as np
 import os
@@ -38,22 +38,14 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
         if aggregated_parameters is not None:
             print(f"Saving round {server_round} aggregated_parameters...")
 
-            # Convert `Parameters` to `List[np.ndarray]`
-            aggregated_ndarrays: List[np.ndarray] = fl.common.parameters_to_ndarrays(aggregated_parameters)
-
-            # Convert `List[np.ndarray]` to PyTorch`state_dict`
-            params_dict = zip(self.model.state_dict().keys(), aggregated_ndarrays)
-            state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-            self.model.load_state_dict(state_dict, strict=True)
-
             # Save the model
-            out_path = os.path.join(self.weights_dir, f"model_round_{server_round}.pth")
-            torch.save(self.model.state_dict(),  out_path)
+            save_faceboxes(self.model, aggregated_parameters, os.path.join(self.weights_dir, f"model_round_{server_round}.pth"))
 
         return aggregated_parameters, aggregated_results
 
 
-def get_config(server_round: int) -> Dict[str, str]:
+    
+def on_fit_config(server_round: int) -> Dict[str, str]:
     """Return a configuration with static batch size and (local) epochs."""
     config = {
         "learning_rate": 1e-3,
@@ -65,6 +57,19 @@ def get_config(server_round: int) -> Dict[str, str]:
         "img_dim": 1024,
     }
     return config
+
+def get_on_evaluate_config_fn(num_rounds: int) -> Callable[[int], Dict[str, str]]:
+    """Return a function which returns a configuration with static batch size."""
+    def on_evaluate_config(server_round: int) -> Dict[str, str]:
+        return {
+            "batch_size": 32,
+            "loc_weight": 2.0,
+            "img_dim": 1024,
+            "current_round": server_round,
+            "num_rounds": num_rounds
+        }
+    return on_evaluate_config
+
 
 
 def fit_weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
@@ -104,7 +109,7 @@ parser = argparse.ArgumentParser(description="Flower")
 parser.add_argument("--toy", action="store_true", 
                     help="Set to true to use only 10 datasamples for validation. \
                         Useful for testing purposes. Default: False")
-parser.add_argument("--num_rounds", default=4, type=int, help="Number of rounds of federated learning. Default: 4")
+parser.add_argument("--num_rounds", default=2, type=int, help="Number of rounds of federated learning. Default: 4")
 parser.add_argument("--server_address", default="0.0.0.0:8080", type=str, help="Server address. Default: 0.0.0.0:8080")
 parser.add_argument("--num_clients", default=2, type=int, help="Number of clients. Default: 2")
 parser.add_argument("--resume_net", default=None, type=str, help="Path to resume network for retraining. Default: None")
@@ -113,11 +118,6 @@ parser.add_argument("--img_dim", type=int, default=1024, help="Image dimension. 
 parser.add_argument("--num_classes", type=int, default=2, help="Number of classes. Default: 2")    
 parser.add_argument("--weights_dir", type=str, default="./weights", help="Directory to save model weights. Default: ./weights")
 args = parser.parse_args()
-
-
-
-
-
 
 # Load model
 model = load_faceboxes(args.phase, args.img_dim, args.num_classes, args.resume_net)
@@ -130,12 +130,12 @@ strategy = SaveModelStrategy(
     model=model,
     weights_dir=args.weights_dir,
     fraction_fit=1.0,
-    fraction_evaluate=0.0, # disable evaluation
+    fraction_evaluate=1.0,
     min_fit_clients=args.num_clients,
     min_evaluate_clients=args.num_clients,
     min_available_clients=args.num_clients,
-    on_fit_config_fn=get_config,
-    on_evaluate_config_fn=get_config,
+    on_fit_config_fn=on_fit_config,
+    on_evaluate_config_fn=get_on_evaluate_config_fn(args.num_rounds),
     fit_metrics_aggregation_fn=fit_weighted_average,
     evaluate_metrics_aggregation_fn=evaluate_weighted_average,
     initial_parameters=parameters,
