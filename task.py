@@ -36,7 +36,6 @@ def train(net, trainloader, valloader, epochs, device: torch.device, **kwargs):
         priors = priorbox.forward()
         priors = priors.to(device)
 
-    # PriorBox moved from here
     net.train()
 
     for epoch_idx in range(epochs):
@@ -134,15 +133,15 @@ def get_weights(model):
     return [val.cpu().numpy() for _, val in model.state_dict().items()]
 
 def set_weights(net, parameters):
-    """Loads FaceBoxes model and replaces it parameters with the ones given."""
+    """Updates FaceBoxes model parameters with the ones given."""
     params_dict = zip(net.state_dict().keys(), parameters)
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
     net.load_state_dict(state_dict, strict=True)
 
 
-def load_faceboxes(mode: str = 'train', img_dim: int = 1024, num_classes: int = 2, resume_net: bool = None):
-    # Load model and data (simple CNN, CIFAR-10)
-    net = FaceBoxes(mode, img_dim, num_classes)
+def load_faceboxes(phase: str = 'train', img_dim: int = 1024, num_classes: int = 2, resume_net: bool = None):
+    """Load FaceBoxes model"""
+    net = FaceBoxes(phase, img_dim, num_classes)
     print("Printing net...")
     print(net)
 

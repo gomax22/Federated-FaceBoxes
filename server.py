@@ -108,7 +108,7 @@ parser.add_argument("--num_rounds", default=4, type=int, help="Number of rounds 
 parser.add_argument("--server_address", default="0.0.0.0:8080", type=str, help="Server address. Default: 0.0.0.0:8080")
 parser.add_argument("--num_clients", default=2, type=int, help="Number of clients. Default: 2")
 parser.add_argument("--resume_net", default=None, type=str, help="Path to resume network for retraining. Default: None")
-parser.add_argument("--mode", type=str, default="train", choices=["train", "test"], help="Mode of the model. Default: train")
+parser.add_argument("--phase", type=str, default="train", choices=["train", "test"], help="Phase of the model. Default: train")
 parser.add_argument("--img_dim", type=int, default=1024, help="Image dimension. Default: 1024")
 parser.add_argument("--num_classes", type=int, default=2, help="Number of classes. Default: 2")    
 parser.add_argument("--weights_dir", type=str, default="./weights", help="Directory to save model weights. Default: ./weights")
@@ -120,7 +120,7 @@ args = parser.parse_args()
 
 
 # Load model
-model = load_faceboxes(mode=args.mode, img_dim=args.img_dim, num_classes=args.num_classes, resume_net=args.resume_net)
+model = load_faceboxes(args.phase, args.img_dim, args.num_classes, args.resume_net)
 ndarrays = get_weights(model)
 parameters = ndarrays_to_parameters(ndarrays)
 

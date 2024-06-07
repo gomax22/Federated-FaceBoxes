@@ -6,8 +6,8 @@ import torch.backends.cudnn as cudnn
 import numpy as np
 from data import cfg
 from layers.functions.prior_box import PriorBox
-from utils.nms_wrapper import nms
-#from utils.nms.py_cpu_nms import py_cpu_nms
+# from utils.nms_wrapper import nms
+from utils.nms.py_cpu_nms import py_cpu_nms
 import cv2
 from models.faceboxes import FaceBoxes
 from utils.box_utils import decode
@@ -15,7 +15,7 @@ from utils.timer import Timer
 
 parser = argparse.ArgumentParser(description='FaceBoxes')
 
-parser.add_argument('-m', '--trained_model', default='weights/FaceBoxes.pth',
+parser.add_argument('-m', '--trained_model', required=True,
                     type=str, help='Trained state_dict file path to open')
 parser.add_argument('--save_folder', default='eval/', type=str, help='Dir to save results')
 parser.add_argument('--cpu', action="store_true", default=False, help='Use cpu inference')
@@ -140,8 +140,8 @@ if __name__ == '__main__':
 
         # do NMS
         dets = np.hstack((boxes, scores[:, np.newaxis])).astype(np.float32, copy=False)
-        #keep = py_cpu_nms(dets, args.nms_threshold)
-        keep = nms(dets, args.nms_threshold,force_cpu=args.cpu)
+        keep = py_cpu_nms(dets, args.nms_threshold)
+        # keep = nms(dets, args.nms_threshold,force_cpu=args.cpu)
         dets = dets[keep, :]
 
         # keep top-K faster NMS
