@@ -1,0 +1,27 @@
+FROM ubuntu:22.04
+WORKDIR /app
+
+
+RUN apt-get update -y
+RUN apt-get upgrade -y
+RUN apt-get install -y git
+RUN apt-get install -y python3
+RUN apt-get install -y python3-pip
+
+RUN git clone --depth 1 https://github.com/gomax22/Federated-FaceBoxes.git && mv Federated-FaceBoxes/* . && rm -rf Federated-FaceBoxes
+RUN python3 -m pip install --no-cache-dir -r requirements.txt
+
+COPY WIDER_train.zip .
+COPY annotations.tar.gz .
+COPY afw_images.zip .
+COPY pascal_images.zip .
+COPY fddb_images.zip .
+
+RUN unzip WIDER_train.zip -d data/ && mv data/WIDER_train/images data/WIDER_FACE  && rm -rf data/WIDER_train && rm WIDER_train.zip
+RUN tar xvf annotations.tar.gz -C data/WIDER_FACE/  && rm annotations.tar.gz
+RUN unzip afw_images.zip -d data/ && mv data/afw_images data/AFW && rm -rf data/afw_images && rm afw_images.zip
+RUN unzip pascal_images.zip -d data/ && mv data/pascal_images data/PASCAL && rm -rf data/pascal_images && rm pascal_images.zip
+RUN unzip fddb_images.zip -d data/ && mv data/fddb_images data/FDDB && rm -rf data/fddb_images && rm fddb_images.zip
+
+# ENTRYPOINT ["flower-client-app", "client:app"]
+ENTRYPOINT ["python3", "client.py"]
