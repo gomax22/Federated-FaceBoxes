@@ -36,11 +36,6 @@ mv data/WIDER_train/images data/WIDER_FACE
 mv data/PASCAL/pascal_images data/PASCAL/images         # if downloaded
 mv data/AFW/afw_images data/AFW/images                  # if downloaded
 mv data/FDDB/fddb_images data/FDDB/images               # if downloaded
-
-rm -rf data/WIDER_train
-rm path/to/pascal_images.zip                            # if downloaded
-rm path/to/afw_images.zip                               # if downloaded
-rm path/to/fddb_images.zip                              # if downloaded
 ```
 
 ## Install dependencies using pip, conda or Docker
@@ -70,6 +65,7 @@ conda activate faceboxes
 ```
 
 ### via Docker
+_Prerequisites_: all zipped datasets must be located at root directory.
 
 Build the server application using the following commands:
 ```Shell
@@ -94,7 +90,7 @@ and then, start the clients:
 python client.py
 ```
 
-### On Docker
+### On Docker (build from scratch)
 Run the server container specifying the server address and the number of rounds (epochs):
 ```Shell
 docker run -t flwr_server:0.0.1 --server_address <server-address> --num_rounds 5
@@ -106,6 +102,12 @@ Run the client container specifying the server address:
 docker run -t flwr_client:0.0.1 --server_address <server-address>
 ```
 Launch `docker run -t flwr_client:0.0.1 --help` for further information.
+
+N.B.: Docker images can be pulled directly from [Docker Hub](https://hub.docker.com/)
+```Shell
+sudo docker pull gomax22/flwr_server:0.0.1  
+sudo docker pull gomax22/flwr_client:0.0.1  
+```
 
 ## Testing
 Evaluate the trained model using:
@@ -124,15 +126,16 @@ python test.py --trained_model /path/to/trained_model.pth -s --vis_thres 0.3
 docker run -t flwr_client:0.0.1 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
 ```
 
-## Google Cloud Platform deployment using Docker
+## Google Cloud Platform (GCP) deployment using Docker
 Prerequisites: 
-* already set up a cluster on Google Cloud Platform
-* Enabled Cloud Dataproc API, Cloud Dataproc Control API, Compute Engine API, Cloud Loggin API
-* Docker available on each VM instance
-* Docker deamon is running (`sudo systemctl start docker`)
-* There's a Firewall rule already created for ports where there will be incoming traffic (from workers to master) (e.g. tcp/8081 udp/8081)
+* Set up a cluster on Google Cloud Platform.
+* Enabled *Cloud Dataproc API, Cloud Dataproc Control API, Compute Engine API, Cloud Loggin API.
+* Enabled Docker on each VM instance.
+* Docker deamon is running (`sudo systemctl start docker`).
+* There's a Firewall rule already created for ports where there will be incoming traffic, from workers to master (e.g. `tcp/8081` `udp/8081`).
 
 Master node will act as a Flower server, while all other workers will act as Flower clients.
+
 First, pull the docker images from [Docker Hub](https://hub.docker.com/) using the following commands:
 
 ```Shell
@@ -140,9 +143,13 @@ sudo docker pull gomax22/flwr_server:0.0.1  # on master
 sudo docker pull gomax22/flwr_client:0.0.1  # on workers
 ```
 
-Then, start the Flower server running the corresponding container
+Then, start the containers.
 
 ```Shell
-sudo docker run -p 8081:8081 -t gomax22/flwr_server:0.0.1 --server_address 0.0.0.0:8081
-sudo docker run -t gomax22/flwr_client:0.0.1 --server_address <internal-ip-masternode>:8081
+sudo docker run -p 8081:8081 -t gomax22/flwr_server:0.0.1 --server_address 0.0.0.0:8081         # on master
+sudo docker run -t gomax22/flwr_client:0.0.1 --server_address <internal-ip-masternode>:8081     # on workers
 ```
+
+Launch the detection test on the workers using:
+```Shell
+docker run -t gomax22/flwr_client:0.0.1 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
