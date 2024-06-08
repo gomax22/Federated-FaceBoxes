@@ -123,3 +123,26 @@ python test.py --trained_model /path/to/trained_model.pth -s --vis_thres 0.3
 ```Shell
 docker run -t flwr_client:0.0.1 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
 ```
+
+## Google Cloud Platform deployment using Docker
+Prerequisites: 
+* already set up a cluster on Google Cloud Platform
+* Enabled Cloud Dataproc API, Cloud Dataproc Control API, Compute Engine API, Cloud Loggin API
+* Docker available on each VM instance
+* Docker deamon is running (`sudo systemctl start docker`)
+* There's a Firewall rule already created for ports where there will be incoming traffic (from workers to master) (e.g. tcp/8081 udp/8081)
+
+Master node will act as a Flower server, while all others workers will act as Flower clients.
+First, pull the docker images from [Docker Hub](https://hub.docker.com/) using the following commands:
+
+```Shell
+sudo docker pull gomax22/flwr_server:0.0.1  # on master
+sudo docker pull gomax22/flwr_client:0.0.1  # on workers
+```
+
+Then, start the Flower server running the corresponding container
+
+```Shell
+sudo docker run -p 8081:8081 -t gomax22/flwr_server:0.0.1 --server_address 0.0.0.0:8081
+sudo docker run -t gomax22/flwr_client:0.0.1 --server_address <internal-ip-masternode>:8081
+```
