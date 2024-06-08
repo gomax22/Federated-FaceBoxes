@@ -132,7 +132,7 @@ Prerequisites:
 * Docker deamon is running (`sudo systemctl start docker`)
 * There's a Firewall rule already created for ports where there will be incoming traffic (from workers to master) (e.g. tcp/8081 udp/8081)
 
-Master node will act as a Flower server, while all others workers will act as Flower clients.
+Master node will act as a Flower server, while all other workers will act as Flower clients.
 First, pull the docker images from [Docker Hub](https://hub.docker.com/) using the following commands:
 
 ```Shell
