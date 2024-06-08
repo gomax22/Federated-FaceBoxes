@@ -21,7 +21,8 @@ _Optional_: Compile the nms (for GPU users)
 1. Download [WIDER FACE](http://shuoyang1213.me/WIDERFACE/) dataset (train split)
 2. Download [converted annotations](https://drive.google.com/open?id=1-s4QCu_v76yNwR-yXMfGqMGgHQ30WxV2) directly from original repository [FaceBoxes.Pytorch](https://github.com/zisianw/FaceBoxes.PyTorch/edit/master/) 
 3. Download the images of [AFW](https://drive.google.com/open?id=1Kl2Cjy8IwrkYDwMbe_9DVuAwTHJ8fjev), [PASCAL Face](https://drive.google.com/open?id=1p7dDQgYh2RBPUZSlOQVU4PgaSKlq64ik) and [FDDB](https://drive.google.com/open?id=17t4WULUDgZgiSy5kpCax4aooyPaz3GQH) for testing purposes
-N.B. It's not mandatory to download all of three testing datasets (but at least one for testing the application). 
+
+N.B. It's andatory to download at least one of them in order to test the application. 
 
 ### Extraction
 ```Shell 
@@ -43,7 +44,7 @@ rm path/to/fddb_images.zip                              # if downloaded
 ```
 
 ## Install dependencies using pip, conda or Docker
-### pip
+### via pip 
 
 Install `virtualenv` via pip (if not already installed):
 ```Shell
@@ -57,7 +58,7 @@ source faceboxes/bin/activate
 pip install -r requirements.txt
 ```
 
-### Conda
+### via Conda
 Create a conda environment starting from `environment.yml` file.
 ```Shell 
 conda env create -f environment.yml
@@ -68,8 +69,19 @@ and activate the environment using
 conda activate faceboxes
 ```
 
-### Docker
-_Work in progress..._
+### via Docker
+
+Build the server application using the following commands:
+```Shell
+export DOCKER_BUILDKIT=1
+docker build -f Dockerfile.server -t flwr_client:0.0.1 .
+```
+
+Build the client application using the following commands:
+```Shell
+export DOCKER_BUILDKIT=1
+docker build -f Dockerfile.client -t flwr_client:0.0.1 .
+```
 
 ## Training
 Train the model starting the server:
@@ -81,13 +93,33 @@ and then, start the clients:
 ```Shell
 python client.py
 ```
+
+### On Docker
+Run the server container specifying the server address and the number of rounds (epochs):
+```Shell
+docker run -t flwr_server:0.0.1 --server_address <server-address> --num_rounds 5
+```
+Launch `docker run -t flwr_server:0.0.1 --help` for further information.
+
+Run the client container specifying the server address:
+```Shell
+docker run -t flwr_client:0.0.1 --server_address <server-address>
+```
+Launch `docker run -t flwr_client:0.0.1 --help` for further information.
+
 ## Testing
 Evaluate the trained model using:
 ```Shell
 # dataset choices = ['AFW', 'PASCAL', 'FDDB']
-python3 test.py --trained_model /path/to/trained_model.pth --dataset FDDB
+python test.py --trained_model /path/to/trained_model.pth --dataset FDDB
 # evaluate using cpu
-python3 test.py --trained_model /path/to/trained_model.pth --cpu
+python test.py --trained_model /path/to/trained_model.pth --cpu
 # visualize detection results
-python3 test.py --trained_model /path/to/trained_model.pth -s --vis_thres 0.3
+python test.py --trained_model /path/to/trained_model.pth -s --vis_thres 0.3
+```
+
+### On Docker
+
+```Shell
+docker run -t flwr_client:0.0.1 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
 ```
