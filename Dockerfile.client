@@ -1,5 +1,5 @@
-FROM ubuntu:22.04
-WORKDIR /app
+FROM ubuntu:20.04
+
 
 
 RUN apt-get update -y
@@ -8,7 +8,8 @@ RUN apt-get install -y git
 RUN apt-get install -y python3
 RUN apt-get install -y python3-pip
 
-RUN git clone --depth 1 https://github.com/gomax22/Federated-FaceBoxes.git && mv Federated-FaceBoxes/* . && rm -rf Federated-FaceBoxes
+RUN git clone --depth 1 https://github.com/gomax22/Federated-FaceBoxes.git && cd Federated-FaceBoxes
+WORKDIR /Federated-FaceBoxes
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
 COPY WIDER_train.zip .
