@@ -1,22 +1,16 @@
 FROM ubuntu:20.04
 
-
-
 RUN apt-get update -y
 RUN apt-get upgrade -y
 RUN apt-get install -y git
 RUN apt-get install -y python3
 RUN apt-get install -y python3-pip
+RUN apt-get install -y unzip
+RUN apt-get install -y tar
 
-RUN git clone --depth 1 https://github.com/gomax22/Federated-FaceBoxes.git && cd Federated-FaceBoxes
-WORKDIR /Federated-FaceBoxes
+WORKDIR /app
+COPY . .
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
-
-COPY WIDER_train.zip .
-COPY annotations.tar.gz .
-COPY afw_images.zip .
-COPY pascal_images.zip .
-COPY fddb_images.zip .
 
 RUN unzip WIDER_train.zip -d data/ && mv data/WIDER_train/images data/WIDER_FACE  && rm -rf data/WIDER_train && rm WIDER_train.zip
 RUN tar xvf annotations.tar.gz -C data/WIDER_FACE/  && rm annotations.tar.gz
