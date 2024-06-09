@@ -115,6 +115,10 @@ parser.add_argument("--num_classes", type=int, default=2, help="Number of classe
 parser.add_argument("--weights_dir", type=str, default="./weights", help="Directory to save model weights. Default: ./weights")
 args = parser.parse_args()
 
+# Create weights directory
+if not os.path.exists(args.weights_dir):
+    Path(args.weights_dir).mkdir(parents=True, exist_ok=True)
+
 # Load model
 model = load_faceboxes(img_dim=args.img_dim, num_classes=args.num_classes)
 ndarrays = get_weights(model)

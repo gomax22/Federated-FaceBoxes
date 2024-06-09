@@ -66,7 +66,7 @@ def train(net, trainloader, valloader, epochs, device: torch.device, **kwargs):
             loss.backward()
             optimizer.step()
 
-            print('Epoch: {}/{} || BatchIter: {}/{} || L: {:.4f} C: {:.4f}'.format(epoch_idx, epochs, batch_idx, num_batches, loss_l.item(), loss_c.item()))
+            print('Epoch: {}/{} || BatchIter: {}/{} || L: {:.4f} C: {:.4f} TOT: {:.4f}'.format(epoch_idx, epochs, batch_idx, num_batches, loss_l.item(), loss_c.item(), loss.item()))
 
         train_loss /= len(trainloader)
         train_regr_loss /= len(trainloader)
@@ -76,7 +76,7 @@ def train(net, trainloader, valloader, epochs, device: torch.device, **kwargs):
 
     net.to("cpu")
     
-    train_loss, train_regr_loss, train_class_loss = test(net, trainloader, device, **kwargs)
+    # train_loss, train_regr_loss, train_class_loss = test(net, trainloader, device, **kwargs)
     val_loss, val_regr_loss, val_class_loss = test(net, valloader, device, **kwargs)
 
     results = {

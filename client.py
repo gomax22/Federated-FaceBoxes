@@ -4,6 +4,7 @@ import argparse
 import warnings
 import torch
 import os
+from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
@@ -23,6 +24,11 @@ parser.add_argument("--validation_split", type=float, default=0.1, help="Validat
 parser.add_argument("--test_split", type=float, default=0.1, help="Test split. Default: 0.1")
 parser.add_argument("--weights_dir", type=str, default="./weights", help="Directory to save model weights. Default: ./weights")
 args = parser.parse_args()
+
+# Create weights directory
+if not os.path.exists(args.weights_dir):
+    Path(args.weights_dir).mkdir(parents=True, exist_ok=True)
+
 
 # load model and data
 model = load_faceboxes(img_dim=args.img_dim, num_classes=args.num_classes).to(DEVICE)
