@@ -73,14 +73,14 @@ class VOCDetection(data.Dataset):
             (eg: take in caption string, return tensor of word indices)
     """
 
-    def __init__(self, root, preproc=None, target_transform=None):
+    def __init__(self, root, partition_id, preproc=None, target_transform=None):
         self.root = root
         self.preproc = preproc
         self.target_transform = target_transform
         self._annopath = os.path.join(self.root, 'annotations', '%s')
         self._imgpath = os.path.join(self.root, 'images', '%s')
         self.ids = list()
-        with open(os.path.join(self.root, 'img_list.txt'), 'r') as f:
+        with open(os.path.join(self.root, f'img_list_{partition_id}.txt'), 'r') as f:
           self.ids = [tuple(line.split()) for line in f]
 
     def __getitem__(self, index):

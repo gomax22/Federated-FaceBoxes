@@ -181,7 +181,7 @@ def _resize_subtract_mean(image, insize, rgb_mean):
 
 class preproc(object):
 
-    def __init__(self, img_dim, rgb_means):
+    def __init__(self, img_dim, rgb_means = (104, 117, 123)):
         self.img_dim = img_dim
         self.rgb_means = rgb_means
 
