@@ -9,10 +9,20 @@ RUN apt-get install -y python3-pip
 RUN apt-get install -y git
 RUN apt-get install -y python3-opencv
 
-
 WORKDIR /app
 COPY . .
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
-# ENTRYPOINT ["flower-server-app", "server:app"]
-ENTRYPOINT ["python3", "server.py"]
+COPY start_flower_server.sh /usr/local/bin/start_flower_server.sh
+RUN chmod +x /usr/local/bin/start_flower_server.sh
+
+ENV NUM_ROUNDS=2
+ENV SERVER_ADDRESS=0.0.0.0:8080
+ENV NUM_CLIENTS=2
+ENV IMG_DIM=1024
+ENV NUM_CLASSES=2
+ENV WEIGHTS_DIR=./weights
+
+CMD ["/bin/sh", "/usr/local/bin/start_flower_server.sh"]
+
+# docker run -p 8080:8080 -e NUM_ROUNDS=3 -it flwr_server:0.0.2

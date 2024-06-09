@@ -21,5 +21,22 @@ RUN unzip afw_images.zip -d data/ && mv data/afw_images data/AFW && rm -rf data/
 RUN unzip pascal_images.zip -d data/ && mv data/pascal_images data/PASCAL && rm -rf data/pascal_images && rm pascal_images.zip
 RUN unzip fddb_images.zip -d data/ && mv data/fddb_images data/FDDB && rm -rf data/fddb_images && rm fddb_images.zip
 
-# ENTRYPOINT ["flower-client-app", "client:app"]
-ENTRYPOINT ["python3", "client.py"]
+
+COPY start_flower_client.sh /usr/local/bin/start_flower_client.sh
+RUN chmod +x /usr/local/bin/start_flower_client.sh
+
+ENV PARTITION_ID=0
+ENV NUM_PARTITIONS=2
+ENV USE_CUDA=0
+ENV SERVER_ADDRESS=0.0.0.0:8080
+ENV DATA_DIR=./data/WIDER_FACE
+ENV IMG_DIM=1024
+ENV NUM_CLASSES=2
+ENV BATCH_SIZE=32
+ENV VALIDATION_SPLIT=0.1
+ENV TEST_SPLIT=0.1
+ENV WEIGHTS_DIR=./weights
+
+CMD ["/bin/sh", "/usr/local/bin/start_flower_client.sh"]
+
+# docker run -e SERVER_ADDRESS=172.30.96.1:8080 -e NUM_PARTITIONS=2 -e PARTITION_ID=0 -it flwr_client:0.0.2

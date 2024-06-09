@@ -100,3 +100,4 @@ data/*/annotations
 
 *.zip
 *.tar.gz
+start_flower_client.sh
