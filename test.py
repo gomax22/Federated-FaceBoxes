@@ -17,6 +17,7 @@ parser = argparse.ArgumentParser(description='FaceBoxes')
 
 parser.add_argument('-m', '--trained_model', required=True,
                     type=str, help='Trained state_dict file path to open')
+parser.add_argument('--partition_id', type=int, required=True, help="ID of the dataset partition to be loaded for testing")
 parser.add_argument('--save_folder', default='eval/', type=str, help='Dir to save results')
 parser.add_argument('--cpu', action="store_true", default=False, help='Use cpu inference')
 parser.add_argument('--dataset', default='PASCAL', type=str, choices=['AFW', 'PASCAL', 'FDDB'], help='dataset')
@@ -89,7 +90,7 @@ if __name__ == '__main__':
 
     # testing dataset
     testset_folder = os.path.join('data', args.dataset, 'images/')
-    testset_list = os.path.join('data', args.dataset, 'img_list.txt')
+    testset_list = os.path.join('data', args.dataset, f'img_list_{args.partition_id}.txt')
     with open(testset_list, 'r') as fr:
         test_dataset = fr.read().split()
     num_images = len(test_dataset)

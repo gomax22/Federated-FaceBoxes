@@ -17,10 +17,9 @@ warnings.filterwarnings("ignore")
 # hyperparams
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
-def load_partition(data_dir: str, img_dim: int, rgb_mean: int, test_split: float, batch_size: int):
+def load_partition(data_dir: str, partition_id: int, img_dim: int, test_split: float, batch_size: int):
     """Load partition WIDER_FACE data."""
-    dataset = VOCDetection(data_dir, preproc(img_dim, rgb_mean), AnnotationTransform())
+    dataset = VOCDetection(data_dir, partition_id, preproc(img_dim), AnnotationTransform())
     trainset, valset = random_split(dataset, [1 - test_split, test_split])
     train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, collate_fn=detection_collate)
     val_loader = DataLoader(valset, batch_size=batch_size, shuffle=False, collate_fn=detection_collate)
