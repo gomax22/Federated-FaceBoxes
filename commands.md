@@ -22,7 +22,7 @@ _Optional_: Compile the nms (for GPU users)
 2. Download [converted annotations](https://drive.google.com/open?id=1-s4QCu_v76yNwR-yXMfGqMGgHQ30WxV2) directly from original repository [FaceBoxes.Pytorch](https://github.com/zisianw/FaceBoxes.PyTorch/edit/master/) 
 3. Download the images of [AFW](https://drive.google.com/open?id=1Kl2Cjy8IwrkYDwMbe_9DVuAwTHJ8fjev), [PASCAL Face](https://drive.google.com/open?id=1p7dDQgYh2RBPUZSlOQVU4PgaSKlq64ik) and [FDDB](https://drive.google.com/open?id=17t4WULUDgZgiSy5kpCax4aooyPaz3GQH) for testing purposes
 
-N.B. It's andatory to download at least one of them in order to test the application. 
+N.B. It's mandatory to download at least one of them in order to test the application. 
 
 ### Extraction
 ```Shell 
@@ -65,7 +65,7 @@ conda activate faceboxes
 ```
 
 ### via Docker
-_Prerequisites_: all zipped datasets must be located at root directory.
+_Prerequisites_: all zipped datasets must be placed into the root directory.
 
 Build the server application using the following commands:
 ```Shell
@@ -93,20 +93,20 @@ python client.py
 ### On Docker (build from scratch)
 Run the server container specifying the server address and the number of rounds (epochs):
 ```Shell
-docker run -t flwr_server:0.0.1 --server_address <server-address> --num_rounds 5
+docker run -p 8080:8080 -e NUM_ROUNDS=3 -e NUM_CLIENTS=2 -it flwr_server:0.0.2
 ```
-Launch `docker run -t flwr_server:0.0.1 --help` for further information.
+Launch `docker run -t flwr_server:0.0.2 --help` for further information.
 
 Run the client container specifying the server address:
 ```Shell
-docker run -t flwr_client:0.0.1 --server_address <server-address>
+docker run -e SERVER_ADDRESS=<server-address> -e NUM_PARTITIONS=<num_partitions> -e PARTITION_ID=<partition_id> -it flwr_client:0.0.2
 ```
-Launch `docker run -t flwr_client:0.0.1 --help` for further information.
+Launch `docker run -t flwr_client:0.0.2 --help` for further information.
 
 N.B.: Docker images can be pulled directly from [Docker Hub](https://hub.docker.com/)
 ```Shell
-sudo docker pull gomax22/flwr_server:0.0.1  
-sudo docker pull gomax22/flwr_client:0.0.1  
+docker pull gomax22/flwr_server:0.0.2
+docker pull gomax22/flwr_client:0.0.2  
 ```
 
 ## Testing
@@ -139,17 +139,27 @@ Master node will act as a Flower server, while all other workers will act as Flo
 First, pull the docker images from [Docker Hub](https://hub.docker.com/) using the following commands:
 
 ```Shell
-sudo docker pull gomax22/flwr_server:0.0.1  # on master
-sudo docker pull gomax22/flwr_client:0.0.1  # on workers
+sudo docker pull gomax22/flwr_server:0.0.2  # on master
+sudo docker pull gomax22/flwr_client:0.0.2  # on workers
 ```
 
 Then, start the containers.
-
+For example
 ```Shell
-sudo docker run -p 8081:8081 -t gomax22/flwr_server:0.0.1 --server_address 0.0.0.0:8081         # on master
-sudo docker run -t gomax22/flwr_client:0.0.1 --server_address <internal-ip-masternode>:8081     # on workers
+sudo docker run -p 8081:8081 -e SERVER_ADDRESS=0.0.0.0:8081 -e NUM_CLIENTS=4 -it gomax22/flwr_server:0.0.2               # on master
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=0 -it gomax22/flwr_client:0.0.2    # on workers
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=1 -it gomax22/flwr_client:0.0.2    # on workers
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=2 -it gomax22/flwr_client:0.0.2    # on workers
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=3 -it gomax22/flwr_client:0.0.2    # on workers
 ```
 
-Launch the detection test on the workers using:
+Hint: add `-d` options to detach containers. This could be strongly useful when SSH connection to the VM instances is lost.
+Connect again via SSH and then:
+```Shell 
+sudo docker ps -a   # get container id
+sudo docker attach <container-id>
+```
+
+After training, execute the detection test on the workers using:
 ```Shell
-docker run -t gomax22/flwr_client:0.0.1 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
+docker run -t gomax22/flwr_client:0.0.2 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
