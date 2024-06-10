@@ -13,7 +13,7 @@ WORKDIR /app
 COPY . .
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
-COPY start_flower_server.sh /usr/local/bin/start_flower_server.sh
+COPY docker/server/start_flower_server.sh /usr/local/bin/start_flower_server.sh
 RUN chmod +x /usr/local/bin/start_flower_server.sh
 
 ENV NUM_ROUNDS=2

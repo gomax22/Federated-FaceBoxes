@@ -15,14 +15,14 @@ WORKDIR /app
 COPY . .
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
-RUN unzip WIDER_train.zip -d data/ && mv data/WIDER_train/images data/WIDER_FACE  && rm -rf data/WIDER_train && rm WIDER_train.zip
-RUN tar xvf annotations.tar.gz -C data/WIDER_FACE/  && rm annotations.tar.gz
-RUN unzip afw_images.zip -d data/ && mv data/afw_images data/AFW && rm -rf data/afw_images && rm afw_images.zip
-RUN unzip pascal_images.zip -d data/ && mv data/pascal_images data/PASCAL && rm -rf data/pascal_images && rm pascal_images.zip
-RUN unzip fddb_images.zip -d data/ && mv data/fddb_images data/FDDB && rm -rf data/fddb_images && rm fddb_images.zip
+RUN unzip data/WIDER_FACE/WIDER_train.zip -d data/ && mv data/WIDER_train/images data/WIDER_FACE  && rm -rf data/WIDER_train && rm data/WIDER_FACE/WIDER_train.zip
+RUN tar xvf data/WIDER_FACE/annotations.tar.gz -C data/WIDER_FACE/  && rm data/WIDER_FACE/annotations.tar.gz
+RUN unzip data/AFW/afw_images.zip -d data/ && mv data/afw_images data/AFW && rm -rf data/afw_images && rm data/AFW/afw_images.zip
+RUN unzip data/PASCAL/pascal_images.zip -d data/ && mv data/pascal_images data/PASCAL && rm -rf data/pascal_images && rm data/PASCAL/pascal_images.zip
+RUN unzip data/FDDB/fddb_images.zip -d data/ && mv data/fddb_images data/FDDB && rm -rf data/fddb_images && rm data/FDDB/fddb_images.zip
 
 
-COPY start_flower_client.sh /usr/local/bin/start_flower_client.sh
+COPY docker/client/start_flower_client.sh /usr/local/bin/start_flower_client.sh
 RUN chmod +x /usr/local/bin/start_flower_client.sh
 
 ENV PARTITION_ID=0

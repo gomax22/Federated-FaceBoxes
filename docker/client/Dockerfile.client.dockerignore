@@ -92,9 +92,3 @@ venv/
 */*.swp
 */*/*.swp
 */*/*/*.swp
-
-eval/
-weights
-data/*/images
-data/*/annotations
-start_flower_server.sh

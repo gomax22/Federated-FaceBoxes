@@ -93,11 +93,3 @@ venv/
 */*/*.swp
 */*/*/*.swp
 
-eval/
-weights
-data/*/images
-data/*/annotations
-
-*.zip
-*.tar.gz
-start_flower_client.sh
