@@ -168,5 +168,8 @@ sudo docker attach <container-id>
 
 After training, execute the detection test on the workers using:
 ```Shell
-docker run -t gomax22/flwr_client:0.0.3 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
+sudo docker run -t gomax22/flwr_client:0.0.3 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
+# or
+sudo docker ps -a   # get container id
+sudo docker exec -it <container-id> python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
 ```
