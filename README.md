@@ -1,8 +1,8 @@
 
-# Federated FaceBoxes
+# Federated FaceBoxes: a Flower-based implementation of Federated Learning for Face Detection using FaceBoxes on WIDER FACE dataset
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)
 
-[Flower-based]((https://flower.ai/)) implementation of Federated Learning for Face Detection using FaceBoxes on WIDER FACE dataset, taking inspiration from a [PyTorch](https://pytorch.org/) implementation of [FaceBoxes: A CPU Real-time Face Detector with High Accuracy](https://arxiv.org/abs/1708.05234). 
+Taking inspiration from a [PyTorch](https://pytorch.org/) implementation of [FaceBoxes: A CPU Real-time Face Detector with High Accuracy](https://arxiv.org/abs/1708.05234) and [Flower examples](https://github.com/adap/flower/tree/main/examples).
 
 ## Installation
 Clone this repository.
