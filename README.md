@@ -1,8 +1,11 @@
 
-# Federated FaceBoxes: a Flower-based implementation of Federated Learning for Face Detection using FaceBoxes on WIDER FACE dataset
+# Federated Learning for Face Detection using FaceBoxes on WIDER FACE dataset
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)
 
-Taking inspiration from a [PyTorch](https://pytorch.org/) implementation of [FaceBoxes: A CPU Real-time Face Detector with High Accuracy](https://arxiv.org/abs/1708.05234) and [Flower examples](https://github.com/adap/flower/tree/main/examples).
+**Federated FaceBoxes** is a [Flower-based](https://flower.ai) implementation of "Federated Learning for Face Detection using FaceBoxes on WIDER FACE dataset", taking inspiration from a [PyTorch](https://pytorch.org/) implementation of ["_Zhang et al._, FaceBoxes: A CPU Real-time Face Detector with High Accuracy"](https://arxiv.org/abs/1708.05234) and [Flower examples](https://github.com/adap/flower/tree/main/examples). 
+
+
+The original code can be found [here](https://github.com/zisianw/FaceBoxes.PyTorch).
 
 ## Installation
 Clone this repository.
@@ -131,7 +134,7 @@ docker run -t flwr_client:0.0.3 python3 test.py --trained_model /path/to/trained
 ## Google Cloud Platform (GCP) deployment using Docker
 Prerequisites: 
 * Set up a cluster on Google Cloud Platform.
-* Enabled *Cloud Dataproc API, Cloud Dataproc Control API, Compute Engine API, Cloud Loggin API.
+* Enabled Cloud Dataproc API, Cloud Dataproc Control API, Compute Engine API, Cloud Loggin API.
 * Enabled Docker on each VM instance.
 * Docker deamon is running (`sudo systemctl start docker`).
 * There's a Firewall rule already created for ports where there will be incoming traffic, from workers to master (e.g. `tcp/8081` `udp/8081`).
