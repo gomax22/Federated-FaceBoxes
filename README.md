@@ -4,8 +4,8 @@
 
 **Federated FaceBoxes** is a [Flower-based](https://flower.ai) implementation of "Federated Learning for Face Detection using FaceBoxes on WIDER FACE dataset", taking inspiration from a [PyTorch](https://pytorch.org/) implementation of ["_Zhang et al._, FaceBoxes: A CPU Real-time Face Detector with High Accuracy"](https://arxiv.org/abs/1708.05234) and [Flower examples](https://github.com/adap/flower/tree/main/examples). 
 
-
 The original code can be found [here](https://github.com/zisianw/FaceBoxes.PyTorch).
+
 
 ## Installation
 Clone this repository.
@@ -159,6 +159,7 @@ sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITI
 ```
 
 Hint: add `-d` options to detach containers. This could be strongly useful when SSH connection to the VM instances is lost.
+
 Connect again via SSH and then:
 ```Shell 
 sudo docker ps -a   # get container id
