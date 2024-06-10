@@ -1,91 +1,168 @@
-# FaceBoxes in PyTorch
 
+# Federated FaceBoxes
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)
 
-By [Zisian Wong](https://github.com/zisianw), [Shifeng Zhang](http://www.cbsr.ia.ac.cn/users/sfzhang/)
-
-A [PyTorch](https://pytorch.org/) implementation of [FaceBoxes: A CPU Real-time Face Detector with High Accuracy](https://arxiv.org/abs/1708.05234). The official code in Caffe can be found [here](https://github.com/sfzhang15/FaceBoxes).
-
-## Performance
-| Dataset | Original Caffe | PyTorch Implementation |
-|:-|:-:|:-:|
-| AFW | 98.98 % | 98.55% |
-| PASCAL | 96.77 % | 97.05% |
-| FDDB | 95.90 % | 96.00% |
-
-## Citation
-Please cite the paper in your publications if it helps your research:
-
-    @inproceedings{zhang2017faceboxes,
-      title = {Faceboxes: A CPU Real-time Face Detector with High Accuracy},
-      author = {Zhang, Shifeng and Zhu, Xiangyu and Lei, Zhen and Shi, Hailin and Wang, Xiaobo and Li, Stan Z.},
-      booktitle = {IJCB},
-      year = {2017}
-    }
-
-### Contents
-- [Installation](#installation)
-- [Training](#training)
-- [Evaluation](#evaluation)
-- [References](#references)
+[Flower-based]((https://flower.ai/)) implementation of Federated Learning for Face Detection using FaceBoxes on WIDER FACE dataset, taking inspiration from a [PyTorch](https://pytorch.org/) implementation of [FaceBoxes: A CPU Real-time Face Detector with High Accuracy](https://arxiv.org/abs/1708.05234). 
 
 ## Installation
-1. Install [PyTorch](https://pytorch.org/) >= v1.0.0 following official instruction.
+Clone this repository.
 
-2. Clone this repository. We will call the cloned directory as `$FaceBoxes_ROOT`.
 ```Shell
-git clone https://github.com/zisianw/FaceBoxes.PyTorch.git
+git clone --depth 1 https://github.com/gomax22/Federated-FaceBoxes.git
+cd Federated-FaceBoxes
 ```
 
-3. Compile the nms:
+_Optional_: Compile the nms (for GPU users)
 ```Shell
 ./make.sh
 ```
 
-_Note: Codes are based on Python 3+._
+## Dataset Preparation
+
+### Download
+1. Download [WIDER FACE](http://shuoyang1213.me/WIDERFACE/) dataset (train split)
+2. Download [converted annotations](https://drive.google.com/open?id=1-s4QCu_v76yNwR-yXMfGqMGgHQ30WxV2) directly from original repository [FaceBoxes.Pytorch](https://github.com/zisianw/FaceBoxes.PyTorch/edit/master/) 
+3. Download the images of [AFW](https://drive.google.com/open?id=1Kl2Cjy8IwrkYDwMbe_9DVuAwTHJ8fjev), [PASCAL Face](https://drive.google.com/open?id=1p7dDQgYh2RBPUZSlOQVU4PgaSKlq64ik) and [FDDB](https://drive.google.com/open?id=17t4WULUDgZgiSy5kpCax4aooyPaz3GQH) for testing purposes
+
+N.B. It's mandatory to download at least one of them in order to test the application. 
+
+### Extraction
+```Shell 
+unzip path/to/WIDER_train.zip -d data/
+unzip path/to/pascal_images.zip -d data/PASCAL          # if downloaded
+unzip path/to/afw_images.zip -d data/AFW                # if downloaded
+unzip path/to/fddb_images.zip -d data/FDDB              # if downloaded
+tar xvf path/to/annotations.tar.gz -C data/WIDER_FACE/  
+
+mv data/WIDER_train/images data/WIDER_FACE              
+mv data/PASCAL/pascal_images data/PASCAL/images         # if downloaded
+mv data/AFW/afw_images data/AFW/images                  # if downloaded
+mv data/FDDB/fddb_images data/FDDB/images               # if downloaded
+```
+
+## Install dependencies using pip, conda or Docker
+### via pip 
+
+Install `virtualenv` via pip (if not already installed):
+```Shell
+pip install virtualenv
+```
+
+Create a virtual environment called faceboxes, activate it and install requirements:
+```Shell
+python -m venv faceboxes 
+source faceboxes/bin/activate
+pip install -r requirements.txt
+```
+
+### via Conda
+Create a conda environment starting from `environment.yml` file.
+```Shell 
+conda env create -f environment.yml
+```
+
+and activate the environment using
+```Shell 
+conda activate faceboxes
+```
+
+### via Docker
+_Prerequisites_: all zipped datasets must be placed into the root directory.
+
+Build the server application using the following commands:
+```Shell
+export DOCKER_BUILDKIT=1
+docker build -f Dockerfile.server -t flwr_client:0.0.3 .
+```
+
+Build the client application using the following commands:
+```Shell
+export DOCKER_BUILDKIT=1
+docker build -f Dockerfile.client -t flwr_client:0.0.3 .
+```
 
 ## Training
-1. Download [WIDER FACE](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/index.html) dataset, place the images under this directory:
-  ```Shell
-  $FaceBoxes_ROOT/data/WIDER_FACE/images
-  ```
-2. Convert WIDER FACE annotations to VOC format or download [our converted annotations](https://drive.google.com/open?id=1-s4QCu_v76yNwR-yXMfGqMGgHQ30WxV2), place them under this directory:
-  ```Shell
-  $FaceBoxes_ROOT/data/WIDER_FACE/annotations
-  ```
-
-3. Train the model using WIDER FACE:
-  ```Shell
-  cd $FaceBoxes_ROOT/
-  python3 train.py
-  ```
-
-If you do not wish to train the model, you can download [our pre-trained model](https://drive.google.com/file/d/1tRVwOlu0QtjvADQ2H7vqrRwsWEmaqioI) and save it in `$FaceBoxes_ROOT/weights`.
-
-
-## Evaluation
-1. Download the images of [AFW](https://drive.google.com/open?id=1Kl2Cjy8IwrkYDwMbe_9DVuAwTHJ8fjev), [PASCAL Face](https://drive.google.com/open?id=1p7dDQgYh2RBPUZSlOQVU4PgaSKlq64ik) and [FDDB](https://drive.google.com/open?id=17t4WULUDgZgiSy5kpCax4aooyPaz3GQH) to:
+Train the model starting the server:
 ```Shell
-$FaceBoxes_ROOT/data/AFW/images/
-$FaceBoxes_ROOT/data/PASCAL/images/
-$FaceBoxes_ROOT/data/FDDB/images/
+python server.py
 ```
 
-2. Evaluate the trained model using:
+and then, start the clients:
+```Shell
+python client.py
+```
+
+### On Docker (build from scratch)
+Run the server container specifying the server address and the number of rounds (epochs):
+```Shell
+docker run -p 8080:8080 -e NUM_ROUNDS=3 -e NUM_CLIENTS=2 -it flwr_server:0.0.3
+```
+Launch `docker run -t flwr_server:0.0.2 --help` for further information.
+
+Run the client container specifying the server address:
+```Shell
+docker run -e SERVER_ADDRESS=<server-address> -e NUM_PARTITIONS=<num_partitions> -e PARTITION_ID=<partition_id> -it flwr_client:0.0.3
+```
+Launch `docker run -t flwr_client:0.0.3 --help` for further information.
+
+N.B.: Docker images can be pulled directly from [Docker Hub](https://hub.docker.com/)
+```Shell
+docker pull gomax22/flwr_server:0.0.3
+docker pull gomax22/flwr_client:0.0.3  
+```
+
+## Testing
+Evaluate the trained model using:
 ```Shell
 # dataset choices = ['AFW', 'PASCAL', 'FDDB']
-python3 test.py --dataset FDDB
+python test.py --trained_model /path/to/trained_model.pth --dataset FDDB
 # evaluate using cpu
-python3 test.py --cpu
+python test.py --trained_model /path/to/trained_model.pth --cpu
 # visualize detection results
-python3 test.py -s --vis_thres 0.3
+python test.py --trained_model /path/to/trained_model.pth -s --vis_thres 0.3
 ```
 
-3. Download [eval_tool](https://github.com/sfzhang15/face-eval) to evaluate the performance.
-    
-## References
-- [Official release (Caffe)](https://github.com/sfzhang15/FaceBoxes)
-- A huge thank you to SSD ports in PyTorch that have been helpful:
-  * [ssd.pytorch](https://github.com/amdegroot/ssd.pytorch), [RFBNet](https://github.com/ruinmessi/RFBNet)
+### On Docker
 
-  _Note: If you can not download the converted annotations, the provided images and the trained model through the above links, you can download them through [BaiduYun](https://pan.baidu.com/s/1HoW3wbldnbmgW2PS4i4Irw)._
+```Shell
+docker run -t flwr_client:0.0.3 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
+```
+
+## Google Cloud Platform (GCP) deployment using Docker
+Prerequisites: 
+* Set up a cluster on Google Cloud Platform.
+* Enabled *Cloud Dataproc API, Cloud Dataproc Control API, Compute Engine API, Cloud Loggin API.
+* Enabled Docker on each VM instance.
+* Docker deamon is running (`sudo systemctl start docker`).
+* There's a Firewall rule already created for ports where there will be incoming traffic, from workers to master (e.g. `tcp/8081` `udp/8081`).
+
+Master node will act as a Flower server, while all other workers will act as Flower clients.
+
+First, pull the docker images from [Docker Hub](https://hub.docker.com/) using the following commands:
+
+```Shell
+sudo docker pull gomax22/flwr_server:0.0.3  # on master
+sudo docker pull gomax22/flwr_client:0.0.3  # on workers
+```
+
+Then, start the containers.
+For example
+```Shell
+sudo docker run -p 8081:8081 -e SERVER_ADDRESS=0.0.0.0:8081 -e NUM_CLIENTS=4 -it gomax22/flwr_server:0.0.3               # on master
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=0 -it gomax22/flwr_client:0.0.3    # on workers
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=1 -it gomax22/flwr_client:0.0.3    # on workers
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=2 -it gomax22/flwr_client:0.0.3    # on workers
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=3 -it gomax22/flwr_client:0.0.3    # on workers
+```
+
+Hint: add `-d` options to detach containers. This could be strongly useful when SSH connection to the VM instances is lost.
+Connect again via SSH and then:
+```Shell 
+sudo docker ps -a   # get container id
+sudo docker attach <container-id>
+```
+
+After training, execute the detection test on the workers using:
+```Shell
+docker run -t gomax22/flwr_client:0.0.3 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
+```
