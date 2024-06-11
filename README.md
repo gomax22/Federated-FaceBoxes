@@ -129,7 +129,7 @@ python test.py --trained_model /path/to/trained_model.pth -s --vis_thres 0.3
 ### On Docker
 
 ```Shell
-docker run -it flwr_client:1.0.0 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
+docker run -it flwr_client:1.0.0 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_image
 ```
 
 ## Google Cloud Platform (GCP) deployment using Docker
