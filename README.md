@@ -26,7 +26,7 @@ _Optional_: Compile the nms (for GPU users)
 1. Download [WIDER FACE](http://shuoyang1213.me/WIDERFACE/) dataset (train split)
 2. Download [converted annotations](https://drive.google.com/open?id=1-s4QCu_v76yNwR-yXMfGqMGgHQ30WxV2) directly from original repository [FaceBoxes.Pytorch](https://github.com/zisianw/FaceBoxes.PyTorch/edit/master/) 
 3. Download the images of [AFW](https://drive.google.com/open?id=1Kl2Cjy8IwrkYDwMbe_9DVuAwTHJ8fjev), [PASCAL Face](https://drive.google.com/open?id=1p7dDQgYh2RBPUZSlOQVU4PgaSKlq64ik) and [FDDB](https://drive.google.com/open?id=17t4WULUDgZgiSy5kpCax4aooyPaz3GQH) for testing purposes
-4. Place the dowloaded datasets into the corresponding folder at `data/`
+4. Place the dowloaded datasets into the corresponding folder at `data/<dataset>/`
 
 
 N.B. It's mandatory to download at least one of the test datasets in order to test the application. 
@@ -72,13 +72,13 @@ _Prerequisites_: all zipped datasets must be placed into the corresponding folde
 Build the server application using the following commands:
 ```Shell
 export DOCKER_BUILDKIT=1
-docker build -f Dockerfile.server -t flwr_client:0.0.3 .
+docker build -f docker/server/Dockerfile.server -t flwr_client:0.0.3 .
 ```
 
 Build the client application using the following commands:
 ```Shell
 export DOCKER_BUILDKIT=1
-docker build -f Dockerfile.client -t flwr_client:0.0.3 .
+docker build -f docker/client/Dockerfile.client -t flwr_client:0.0.3 .
 ```
 
 ## Training
@@ -129,7 +129,7 @@ python test.py --trained_model /path/to/trained_model.pth -s --vis_thres 0.3
 ### On Docker
 
 ```Shell
-docker run -t flwr_client:1.0.0 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
+docker run -it flwr_client:1.0.0 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_images
 ```
 
 ## Google Cloud Platform (GCP) deployment using Docker
@@ -152,27 +152,27 @@ sudo docker pull gomax22/flwr_client:1.0.0  # on workers
 Then, start the containers.
 For example
 ```Shell
-sudo docker run -p 8081:8081 -e SERVER_ADDRESS=0.0.0.0:8081 -e NUM_CLIENTS=4 -it gomax22/flwr_server:1.0.0               # on master
-sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=0 -it gomax22/flwr_client:1.0.0    # on workers
-sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=1 -it gomax22/flwr_client:1.0.0    # on workers
-sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=2 -it gomax22/flwr_client:1.0.0    # on workers
-sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=3 -it gomax22/flwr_client:1.0.0    # on workers
+sudo docker run -p 8081:8081 -e SERVER_ADDRESS=0.0.0.0:8081 -e NUM_CLIENTS=4  -e NUM_ROUNDS=200 -it gomax22/flwr_server:1.0.0   # on master
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=0 -it gomax22/flwr_client:1.0.0           # on workers
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=1 -it gomax22/flwr_client:1.0.0           # on workers
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=2 -it gomax22/flwr_client:1.0.0           # on workers
+sudo docker run -e SERVER_ADDRESS=10.200.0.9:8081 -e NUM_PARTITIONS=4 -e PARTITION_ID=3 -it gomax22/flwr_client:1.0.0           # on workers
 ```
 
-_Hint_: add `-d` options to detach containers. This could be strongly useful when SSH connection to the VM instances is lost.
-_Hint_: you can check logs using the command: `docker logs <container-id>`
+_Hint 1_ : add `-d` options to detach containers. This could be strongly useful when SSH connection to the VM instances is lost.
+
+_Hint 2_: you can check logs using the command: `sudo docker logs <container-id>`
 
 Connect again via SSH and then:
 ```Shell 
-sudo docker ps -a   # get container id
+sudo docker ps  # get container id
 sudo docker attach <container-id>
 ```
 
 After training, execute the detection test on the workers using:
 ```Shell
-
 # dataset choices = ['AFW', 'PASCAL', 'FDDB']
-sudo docker run -t gomax22/flwr_client:1.0.0 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_image
+sudo docker run -it gomax22/flwr_client:1.0.0 python3 test.py --trained_model /path/to/trained_model.pth --dataset PASCAL --cpu --save_image
 
 # or
 sudo docker ps -a   # get container id
