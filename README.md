@@ -66,6 +66,8 @@ and activate the environment using
 conda activate faceboxes
 ```
 
+**WARNING**: in this environment PyTorch has been installed only for CPUs. For installing CUDA-enabled PyTorch, please visit https://pytorch.org/get-started/locally/.
+
 ### via Docker
 _Prerequisites_: all zipped datasets must be placed into the corresponding folders at `data/`.
 
@@ -82,16 +84,26 @@ docker build -f docker/client/Dockerfile.client -t flwr_client:0.0.3 .
 ```
 
 ## Training
+Before starting to train, datasets should be partitioned and distributed among clients in order to simulate a real-world federated scenario. 
+
+To simulate this scenario, launch the following commands:
+```Shell
+python split.py --img_list data/WIDER_FACE/img_list.txt --partitions 2 --output data/WIDER_FACE
+```
+
+`split.py` creates `n` partitions starting from the corresponding `img_list.txt` file, which we'll be used exclusively by each client.
+
 Train the model starting the server:
 ```Shell
-python server.py
+python server.py --num_rounds 200 --num_clients 2
 ```
 Launch `python server.py --help` for further information.
 
 
 and then, start the clients:
 ```Shell
-python client.py
+python client.py --partition_id 0
+python client.py --partition_id 1
 ```
 Launch `python client.py --help` for further information.
 
