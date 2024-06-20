@@ -7,6 +7,24 @@
 The original code can be found [here](https://github.com/zisianw/FaceBoxes.PyTorch).
 
 
+## Cloud-based Deployment Strategies of Hierarchical Federated Learning Systems for Face Recognition
+This repository also contains the materials for Cloud Computing exam project [@uniparthenope](https://github.com/uniparthenope) a.y. 2023/2024 (paper submission, presentation and project implementation). 
+
+### Authors 
+* [R. Esposito](https://github.com/RenatoEsposito1999)
+* [V. Mele](https://github.com/MeleVincenzo)
+* [A. Mungari](https://github.com/mungowz)
+* M. Giordano Orsini (me)
+* [M. Roscica](https://github.com/martirrrrr)
+* [S. Verrilli](https://github.com/StefanoVerrilli)
+
+All the authors contributed equally to this work.
+
+
+![frontcover](/paper/frontcover.jpg)
+
+Check out our work (paper and slides) at `paper/`.
+
 ## Installation
 Clone this repository.
 
